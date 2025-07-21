@@ -1,53 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './App.css';
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const wsRef = useRef(null);
 
-  const handleSend = async (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
+
     const newMessages = [...messages, { role: 'user', content: input }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
-    try {
-      const response = await fetch('http://localhost:8000/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
-      });
-      let reply = '';
-      if (response.body && response.body.getReader) {
-        // Streaming response
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          if (value) {
-            const lines = decoder.decode(value).split('\n').filter(Boolean);
-            for (const line of lines) {
-              try {
-                const data = JSON.parse(line);
-                reply += data.message?.content || '';
-              } catch {}
-            }
-          }
-        }
-      } else {
-        // Fallback for non-streaming
-        const data = await response.json();
-        reply = data.message?.content || '';
+
+    
+    // Open a new WebSocket connection for each message (or reuse if you prefer)
+    const ws = new window.WebSocket('ws://localhost:8000/ws/chat');
+    wsRef.current = ws;
+
+    let reply = '';
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ messages: newMessages }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.content) {
+        reply += data.content;
+        // Optionally, update the UI as each chunk arrives:
+        setMessages([...newMessages, { role: 'assistant', content: reply }]);
       }
-      setMessages([...newMessages, { role: 'assistant', content: reply }]);
-    } catch (err) {
-      setMessages([...newMessages, { role: 'assistant', content: 'Error: ' + err.message }]);
-    }
-    setLoading(false);
+      if (data.done) {
+        setLoading(false);
+        ws.close();
+      }
+      if (data.error) {
+        setMessages([...newMessages, { role: 'assistant', content: 'Error: ' + data.error }]);
+        setLoading(false);
+        ws.close();
+      }
+    };
+
+    ws.onerror = (err) => {
+      setMessages([...newMessages, { role: 'assistant', content: 'WebSocket error' }]);
+      setLoading(false);
+      ws.close();
+    };
   };
 
   return (
