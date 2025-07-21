@@ -14,6 +14,9 @@ def stream_chat(messages):
         "model": MODEL_NAME,
         "messages": messages
     }
+
+    print(f"Sending request: {payload}")
+    
     try:
         with requests.post(OLLAMA_API_URL, json=payload, stream=True) as resp:
             resp.raise_for_status()

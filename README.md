@@ -34,4 +34,18 @@
 
 ---
 
+## Running the FastAPI Ollama Proxy
+
+The FastAPI server is now located in the `src` directory.
+
+To run the server:
+
+```bash
+uvicorn src.ollama_api_server:app --reload
+```
+
+This will start the API at `http://localhost:8000/chat`.
+
+---
+
 Continue to implement the CLI and API client in `chatbot.py`.
