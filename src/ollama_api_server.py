@@ -21,42 +21,21 @@ app.add_middleware(
 )
 
 # Simple tool functions
-def get_current_time(city: str) -> str:
-    """Get the current time for a given city"""
+def get_current_time(city: str, timezone: str) -> str:
+    """Returns the current time in a specified city and timezone
+
+    Args:
+        city (str): The name of the city for which to retrieve the current time.
+        timezone (str): The timezone for the city.
+
+    Returns:
+        dict: status and result or error msg.
+    """
     try:
         # Common timezone mappings
-        timezone_map = {
-            "new york": "America/New_York",
-            "nyc": "America/New_York",
-            "london": "Europe/London",
-            "paris": "Europe/Paris",
-            "tokyo": "Asia/Tokyo",
-            "sydney": "Australia/Sydney",
-            "los angeles": "America/Los_Angeles",
-            "la": "America/Los_Angeles",
-            "chicago": "America/Chicago",
-            "miami": "America/New_York",
-            "san francisco": "America/Los_Angeles",
-            "sf": "America/Los_Angeles",
-            "toronto": "America/Toronto",
-            "vancouver": "America/Vancouver",
-            "berlin": "Europe/Berlin",
-            "madrid": "Europe/Madrid",
-            "rome": "Europe/Rome",
-            "moscow": "Europe/Moscow",
-            "beijing": "Asia/Shanghai",
-            "shanghai": "Asia/Shanghai",
-            "seoul": "Asia/Seoul",
-            "singapore": "Asia/Singapore",
-            "dubai": "Asia/Dubai",
-            "mumbai": "Asia/Kolkata",
-            "delhi": "Asia/Kolkata",
-            "utc": "UTC",
-            "gmt": "UTC"
-        }
-        
+    
         city_lower = city.lower().strip()
-        timezone_name = timezone_map.get(city_lower, city_lower)
+        timezone_name = timezone
         
         # Try to get the timezone
         try:
@@ -152,11 +131,11 @@ async def get_tools():
         "tools": [
             {
                 "name": "get_current_time",
-                "description": "Get the current time for a specific city"
+                "description": "Get the current time for a specific city and timezone. Requires city name and timezone (e.g., 'America/New_York', 'Europe/London')"
             },
             {
                 "name": "get_weather", 
-                "description": "Get weather information for a specific city"
+                "description": "Get weather information for a specific city. Requires city name"
             }
         ]
     }
@@ -179,8 +158,8 @@ You have access to the following tools. When you need to use a tool, format your
 [TOOL_CALL: tool_name(param1=value1, param2=value2)]
 
 Available tools:
-- get_current_time: Get the current time for a specific city
-- get_weather: Get weather information for a specific city
+- get_current_time(city, timezone): Get the current time for a specific city and timezone. Requires city name and timezone (e.g., "America/New_York", "Europe/London")
+- get_weather(city): Get weather information for a specific city. Requires city name
 """
             
             # Add tool instructions to the first message if it's from the user
@@ -246,8 +225,8 @@ You have access to the following tools. When you need to use a tool, format your
 [TOOL_CALL: tool_name(param1=value1, param2=value2)]
 
 Available tools:
-- get_current_time: Get the current time for a specific city
-- get_weather: Get weather information for a specific city
+- get_current_time(city, timezone): Get the current time for a specific city and timezone. Requires city name and timezone (e.g., "America/New_York", "Europe/London")
+- get_weather(city): Get weather information for a specific city. Requires city name
 """
             
             # Add tool instructions to the first message if it's from the user

@@ -26,7 +26,7 @@ def test_chat_with_tools():
     test_cases = [
         {
             "name": "Get current time",
-            "message": "What's the current time in Tokyo?"
+            "message": "What's the current time in Tokyo with timezone Asia/Tokyo?"
         },
         {
             "name": "Get weather",
@@ -34,7 +34,7 @@ def test_chat_with_tools():
         },
         {
             "name": "Multiple tools",
-            "message": "What's the time in New York and what's the weather like there?"
+            "message": "What's the time in New York with timezone America/New_York and what's the weather like there?"
         }
     ]
     
@@ -79,7 +79,7 @@ def test_chat_without_tools():
     
     payload = {
         "messages": [
-            {"role": "user", "content": "What's the current time in Tokyo?"}
+            {"role": "user", "content": "What's the current time in Tokyo with timezone Asia/Tokyo?"}
         ],
         "enable_tools": False
     }
@@ -91,7 +91,7 @@ def test_chat_without_tools():
             stream=True
         )
         
-        print("User: What's the current time in Tokyo?")
+        print("User: What's the current time in Tokyo with timezone Asia/Tokyo?")
         print("Assistant: ", end="")
         for line in response.iter_lines():
             if line:
